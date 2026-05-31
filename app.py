@@ -36,6 +36,11 @@ def reset_all():
     ]
     st.session_state.history = []
 
+# Inline score modification helpers to keep code clean
+def adjust_score(idx, amount):
+    save_to_history()
+    st.session_state.teams[idx]["score"] += amount
+
 # 3. UI Layout
 st.title("🁣🁤🁥🁦 Puntaje Dominó")
 
@@ -65,10 +70,10 @@ st.divider()
 st.subheader("📋 Puntuación Actual")
 
 for idx, team in enumerate(st.session_state.teams):
-    # Using a 2-column card-like layout for each team
-    col_card_left, col_card_right = st.columns([5, 4])
+    # Split row into Team Name (50%), Minus Button (20%), Score Button (30%)
+    col_name, col_minus, col_plus = st.columns([5, 2, 3])
 
-    with col_card_left:
+    with col_name:
         # Large text input for the team name
         new_name = st.text_input(
             f"Nombre del Equipo {idx+1}",
@@ -81,17 +86,22 @@ for idx, team in enumerate(st.session_state.teams):
             st.session_state.teams[idx]["name"] = new_name
             st.rerun()
 
-    with col_card_right:
-        # Native number input provides large, easy-to-tap minus/plus stepper buttons on mobile
-        new_score = st.number_input(
-            f"Puntos {idx}",
-            value=team["score"],
-            step=1,
-            key=f"score_in_{idx}",
-            label_visibility="collapsed"
+    with col_minus:
+        # Pure step-down button
+        st.button(
+            "➖", 
+            key=f"minus_{idx}", 
+            on_click=adjust_score, 
+            args=(idx, -1), 
+            use_container_width=True
         )
-        if new_score != team["score"]:
-            save_to_history()
-            st.session_state.teams[idx]["score"] = new_score
-            st.rerun()
 
+    with col_plus:
+        # Displays current score directly on the plus button action target
+        st.button(
+            f"➕ ({team['score']})", 
+            key=f"plus_{idx}", 
+            on_click=adjust_score, 
+            args=(idx, 1), 
+            use_container_width=True
+        )

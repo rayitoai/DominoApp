@@ -70,33 +70,35 @@ st.divider()
 st.subheader("📋 Puntuación Actual")
 
 for idx, team in enumerate(st.session_state.teams):
-    # Left-to-right balanced ratio: Name (45%), Score Badge (25%), Buttons Block (30%)
-    col_name, col_score, col_buttons = st.columns([4.5, 2.5, 3])
+    # Splits the main screen evenly into two target layout zones
+    col_identity, col_actions = st.columns([5, 5])
 
-    with col_name:
-        # Large text input for the team name
-        new_name = st.text_input(
-            f"Nombre del Equipo {idx+1}",
-            value=team["name"],
-            key=f"name_{idx}",
-            label_visibility="collapsed"
-        )
-        if new_name != team["name"]:
-            save_to_history()
-            st.session_state.teams[idx]["name"] = new_name
-            st.rerun()
+    # Left Zone: Merges Name Input and Points Badge perfectly together
+    with col_identity:
+        sub_name, sub_score = st.columns([3, 2])
+        
+        with sub_name:
+            new_name = st.text_input(
+                f"Nombre del Equipo {idx+1}",
+                value=team["name"],
+                key=f"name_{idx}",
+                label_visibility="collapsed"
+            )
+            if new_name != team["name"]:
+                save_to_history()
+                st.session_state.teams[idx]["name"] = new_name
+                st.rerun()
 
-    with col_score:
-        # Displays points securely right after the name
-        st.button(
-            f"{team['score']} pts", 
-            key=f"badge_{idx}", 
-            disabled=True, 
-            use_container_width=True
-        )
+        with sub_score:
+            st.button(
+                f"{team['score']} pts", 
+                key=f"badge_{idx}", 
+                disabled=True, 
+                use_container_width=True
+            )
 
-    with col_buttons:
-        # Nesting columns tightly inside a single cell guarantees they stay side-by-side
+    # Right Zone: Holds the modification buttons side-by-side
+    with col_actions:
         sub_minus, sub_plus = st.columns(2)
         
         with sub_minus:

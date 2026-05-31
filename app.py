@@ -70,8 +70,8 @@ st.divider()
 st.subheader("📋 Puntuación Actual")
 
 for idx, team in enumerate(st.session_state.teams):
-    # Split row into Team Name (50%), Minus Button (20%), Score Button (30%)
-    col_name, col_minus, col_plus = st.columns([5, 2, 3])
+    # Left-to-right order: Name (50%), Score Badge (20%), Minus (15%), Plus (15%)
+    col_name, col_score, col_minus, col_plus = st.columns([5, 2, 1.5, 1.5])
 
     with col_name:
         # Large text input for the team name
@@ -86,6 +86,15 @@ for idx, team in enumerate(st.session_state.teams):
             st.session_state.teams[idx]["name"] = new_name
             st.rerun()
 
+    with col_score:
+        # Displays points securely right after the name (Disabled button serves as a clean text badge)
+        st.button(
+            f"{team['score']} pts", 
+            key=f"badge_{idx}", 
+            disabled=True, 
+            use_container_width=True
+        )
+
     with col_minus:
         # Pure step-down button
         st.button(
@@ -97,9 +106,9 @@ for idx, team in enumerate(st.session_state.teams):
         )
 
     with col_plus:
-        # Displays current score directly on the plus button action target
+        # Pure step-up button
         st.button(
-            f"➕ ({team['score']})", 
+            "➕", 
             key=f"plus_{idx}", 
             on_click=adjust_score, 
             args=(idx, 1), 

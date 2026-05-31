@@ -37,7 +37,7 @@ def reset_all():
     st.session_state.history = []
 
 # 3. UI Layout
-st.title("🎴 Domino Scoreboard")
+st.title("🁣🁤🁥🁦 Puntaje Domino")
 
 # Global Controls - Stacked in 3 columns that adapt well to mobile
 col_add, col_undo, col_reset = st.columns(3)

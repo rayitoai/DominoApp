@@ -29,15 +29,12 @@ st.html("""
         display: block;
     }
     
-    /* Forces the button container to display elements horizontally side-by-side */
-    .button-container [data-testid="stMetricVitalsColumn"] {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 0.25rem !important;
-    }
-    .button-container div[data-testid="element-container"] {
-        display: inline-block !important;
-        width: 48% !important;
+    /* Forces the minus and plus columns to stay on a single line on mobile phones */
+    @media (max-width: 640px) {
+        .mobile-row-fix div[data-testid="column"] {
+            flex: 1 1 auto !important;
+            width: auto !important;
+        }
     }
 </style>
 """)
@@ -127,15 +124,15 @@ for idx, team in enumerate(st.session_state.teams):
             st.rerun()
 
     with col_score:
-        # Native st.html handling variables without rogue arguments
+        # Fixed line 115: Native st.html handling variables without rogue arguments
         st.html(f'<span class="score-badge">{team["score"]} pts</span>')
 
     with col_buttons:
-        # Using a container with clean structural scoping to target the native layout
-        with st.container(key=f"btn_container_{idx}"):
-            st.html('<div class="button-container">')
-            
-            # Sub-columns are removed entirely to avoid vertical stacking rules on mobile layout viewports
+        # Fixed line 119: Wrapper HTML structure for the columns
+        st.html('<div class="mobile-row-fix">')
+        sub_col_minus, sub_col_plus = st.columns(2)
+        
+        with sub_col_minus:
             st.button(
                 "➖", 
                 key=f"minus_{idx}", 
@@ -143,6 +140,8 @@ for idx, team in enumerate(st.session_state.teams):
                 args=(idx, -1), 
                 use_container_width=True
             )
+            
+        with sub_col_plus:
             st.button(
                 "➕", 
                 key=f"plus_{idx}", 
@@ -150,4 +149,4 @@ for idx, team in enumerate(st.session_state.teams):
                 args=(idx, 1), 
                 use_container_width=True
             )
-            st.html('</div>')
+        st.html('</div>')

@@ -3,7 +3,7 @@ import streamlit as st
 # Set page configuration to wide/responsive by default
 st.set_page_config(page_title="Domino", layout="centered")
 
-# Custom CSS using native st.html to prevent Python 3.14 parsing bugs
+# Custom CSS using native st.html to force true mobile layouts
 st.html("""
 <style>
     /* Reduces space between rows and columns */
@@ -36,9 +36,15 @@ st.html("""
         padding-right: 0.5rem;
     }
     
-    /* Extra margin tightening for mobile card structures */
-    div[data-testid="stBlock"] {
-        margin-bottom: 0.2rem !important;
+    /* FORCES the plus and minus buttons to stay horizontal on phones */
+    .mobile-button-row [data-testid="stMetricVitalsColumn"] {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 0.5rem !important;
+    }
+    .mobile-button-row div[data-testid="element-container"] {
+        display: inline-block !important;
+        width: 48% !important; /* Spreads them perfectly across the screen width */
     }
 </style>
 """)
@@ -129,10 +135,9 @@ for idx, team in enumerate(st.session_state.teams):
     with col_score:
         st.html(f'<span class="score-badge">{team["score"]} pts</span>')
 
-    # --- ROW BOTTOM LINE: Big side-by-side action buttons directly underneath ---
-    col_minus, col_plus = st.columns(2)
-    
-    with col_minus:
+    # --- ROW BOTTOM LINE: Hard-locked horizontal tap zones directly underneath ---
+    with st.container(key=f"btn_holder_{idx}"):
+        st.html('<div class="mobile-button-row">')
         st.button(
             "➖", 
             key=f"minus_{idx}", 
@@ -140,8 +145,6 @@ for idx, team in enumerate(st.session_state.teams):
             args=(idx, -1), 
             use_container_width=True
         )
-        
-    with col_plus:
         st.button(
             "➕", 
             key=f"plus_{idx}", 
@@ -149,6 +152,7 @@ for idx, team in enumerate(st.session_state.teams):
             args=(idx, 1), 
             use_container_width=True
         )
+        st.html('</div>')
     
-    # A light spacer between the team block clusters to keep it organized
+    # A small divider space to clearly group individual team sections together
     st.write("")

@@ -6,8 +6,8 @@ st.set_page_config(page_title="Domino", layout="centered")
 # 1. Initialize App State
 if "teams" not in st.session_state:
     st.session_state.teams = [
-        {"name": "Equipo Alpha", "score": 0},
-        {"name": "Equipo Bravo", "score": 0},
+        {"name": "Equipo 1", "score": 0},
+        {"name": "Equipo 2", "score": 0},
         {"name": "Equipo Charlie", "score": 0},
     ]
 if "history" not in st.session_state:
@@ -31,8 +31,8 @@ def add_new_team():
 
 def reset_all():
     st.session_state.teams = [
-        {"name": "Equipo Alpha", "score": 0},
-        {"name": "Equipo Bravo", "score": 0},
+        {"name": "Equipo 1", "score": 0},
+        {"name": "Equipo 2", "score": 0},
     ]
     st.session_state.history = []
 

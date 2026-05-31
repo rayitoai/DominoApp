@@ -90,12 +90,8 @@ for idx, team in enumerate(st.session_state.teams):
                 st.rerun()
 
         with sub_score:
-            st.button(
-                f"{team['score']} pts", 
-                key=f"badge_{idx}", 
-                disabled=True, 
-                use_container_width=True
-            )
+            # Using Markdown text instead of a disabled button renders it in bold black font
+            st.write(f"### **{team['score']} pts**")
 
     # Right Zone: Holds the modification buttons side-by-side
     with col_actions:

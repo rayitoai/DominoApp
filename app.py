@@ -3,10 +3,10 @@ import streamlit as st
 # Set page configuration to wide/responsive by default
 st.set_page_config(page_title="Domino", layout="centered")
 
-# Safe CSS to force single-line layout and remove vertical gaps on mobile
+# Safe CSS to handle vertical spacing and text styling cleanly across all browsers
 st.html("""
 <style>
-    /* Reduces vertical padding and margins to fit more teams on screen */
+    /* Safely tighter layout gaps to fit more teams on a mobile screen */
     [data-testid="stVerticalBlock"] {
         gap: 0.3rem !important;
     }
@@ -18,30 +18,16 @@ st.html("""
         visibility: hidden !important;
     }
 
-    /* Target the text element to align nicely with the inputs */
-    .score-text p {
+    /* Cross-browser styling for the bold black points badge */
+    .safari-score {
         font-weight: 800 !important;
         color: #000000 !important;
         font-size: 1.1rem !important;
-        line-height: 2.5rem !important;
-        margin: 0 !important;
+        line-height: 2.5rem; /* Matches default text input height */
         white-space: nowrap !important;
-    }
-
-    /* CRITICAL MOBILE OVERRIDE: Forces rows to stay horizontal on mobile screens */
-    @media (max-width: 640px) {
-        div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            width: 100% !important;
-            align-items: center !important;
-            gap: 0.3rem !important;
-        }
-        div[data-testid="column"] {
-            flex: 1 1 auto !important;
-            width: auto !important;
-        }
+        display: inline-block;
+        margin: 0 !important;
+        padding-left: 0.2rem;
     }
 </style>
 """)
@@ -109,44 +95,46 @@ else:
 
 st.divider()
 
-# 5. Dynamic Scoreboard Matrix (Mobile-Optimized Rows)
+# 5. Dynamic Scoreboard Matrix (Safari & Chrome Mobile Stable)
 st.subheader("📋 Puntuación Actual")
 
 for idx, team in enumerate(st.session_state.teams):
-    # Left-to-right exact proportional columns locked on one line by CSS
-    # Name (40%), Score Badge (20%), Minus (20%), Plus (20%)
-    col_name, col_score, col_minus, col_plus = st.columns([4, 2, 2, 2])
+    # Splits row into 2 concrete blocks so Safari preserves the line flow perfectly
+    col_identity, col_actions = st.columns([6, 4])
 
-    with col_name:
-        new_name = st.text_input(
-            f"Nombre del Equipo {idx+1}",
-            value=team["name"],
-            key=f"name_{idx}",
-            label_visibility="collapsed"
-        )
-        if new_name != team["name"]:
-            save_to_history()
-            st.session_state.teams[idx]["name"] = new_name
-            st.rerun()
+    # Left Block (60%): Holds Name input and your Bold Black Points badge inline
+    with col_identity:
+        sub_name, sub_score = st.columns([3.5, 2.5])
+        with sub_name:
+            new_name = st.text_input(
+                f"Nombre del Equipo {idx+1}",
+                value=team["name"],
+                key=f"name_{idx}",
+                label_visibility="collapsed"
+            )
+            if new_name != team["name"]:
+                save_to_history()
+                st.session_state.teams[idx]["name"] = new_name
+                st.rerun()
+        with sub_score:
+            st.html(f'<span class="safari-score">{team["score"]} pts</span>')
 
-    with col_score:
-        # Wrapped in a container div to apply the clean bold black text alignment safely
-        st.html(f'<div class="score-text"><p><b>{team["score"]} pts</b></p></div>')
-
-    with col_minus:
-        st.button(
-            "➖", 
-            key=f"minus_{idx}", 
-            on_click=adjust_score, 
-            args=(idx, -1), 
-            use_container_width=True
-        )
-
-    with col_plus:
-        st.button(
-            "➕", 
-            key=f"plus_{idx}", 
-            on_click=adjust_score, 
-            args=(idx, 1), 
-            use_container_width=True
-        )
+    # Right Block (40%): Holds the adjustment buttons strictly side-by-side
+    with col_actions:
+        sub_minus, sub_plus = st.columns(2)
+        with sub_minus:
+            st.button(
+                "➖", 
+                key=f"minus_{idx}", 
+                on_click=adjust_score, 
+                args=(idx, -1), 
+                use_container_width=True
+            )
+        with sub_plus:
+            st.button(
+                "➕", 
+                key=f"plus_{idx}", 
+                on_click=adjust_score, 
+                args=(idx, 1), 
+                use_container_width=True
+            )

@@ -95,4 +95,3 @@ for idx, team in enumerate(st.session_state.teams):
             st.session_state.teams[idx]["score"] = new_score
             st.rerun()
 
-    st.markdown("---") # Thin separator between teams for clarity on small screens

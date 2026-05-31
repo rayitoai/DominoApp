@@ -3,20 +3,33 @@ import streamlit as st
 # Set page configuration to wide/responsive by default
 st.set_page_config(page_title="Domino", layout="centered")
 
-# Custom CSS converted to a clean string format to bypass Python 3.14 string parsing bugs
+# Custom CSS using native st.html to prevent Python 3.14 parsing bugs
 st.html("""
 <style>
-    [data-testid="stVerticalBlock"] { gap: 0.4rem !important; }
-    [data-testid="stHorizontalBlock"] { gap: 0.4rem !important; }
-    .block-container { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+    /* Reduces space between rows and columns */
+    [data-testid="stVerticalBlock"] {
+        gap: 0.4rem !important;
+    }
+    [data-testid="stHorizontalBlock"] {
+        gap: 0.4rem !important;
+    }
+    /* Tightens the container margins */
+    .block-container {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+    
+    /* Custom styling for the bold black score */
     .score-badge {
         font-weight: 800 !important;
         color: #000000 !important;
         font-size: 1.15rem;
         text-align: center;
-        line-height: 2.5rem;
+        line-height: 2.5rem; /* Vertically centers text with the inputs */
         display: block;
     }
+    
+    /* Forces the minus and plus columns to stay on a single line on mobile phones */
     @media (max-width: 640px) {
         .mobile-row-fix div[data-testid="column"] {
             flex: 1 1 auto !important;
@@ -111,12 +124,12 @@ for idx, team in enumerate(st.session_state.teams):
             st.rerun()
 
     with col_score:
-        # Bold black text element right after the name
-        st.html(f'<span class="score-badge">{team["score"]} pts</span>', unsafe_allowed_html=True)
+        # Fixed line 115: Native st.html handling variables without rogue arguments
+        st.html(f'<span class="score-badge">{team["score"]} pts</span>')
 
     with col_buttons:
-        # HTML element to target and force columns to stay inline on small screens
-        st.html('<div class="mobile-row-fix">', unsafe_allowed_html=True)
+        # Fixed line 119: Wrapper HTML structure for the columns
+        st.html('<div class="mobile-row-fix">')
         sub_col_minus, sub_col_plus = st.columns(2)
         
         with sub_col_minus:
@@ -136,4 +149,4 @@ for idx, team in enumerate(st.session_state.teams):
                 args=(idx, 1), 
                 use_container_width=True
             )
-        st.html('</div>', unsafe_allowed_html=True)
+        st.html('</div>')

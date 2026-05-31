@@ -228,5 +228,5 @@ for idx, team in enumerate(st.session_state.teams):
 
             use_container_width=True
 
-        ) edit this code instead 
+        )
 

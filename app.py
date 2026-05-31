@@ -51,7 +51,7 @@ with col_reset:
 st.divider()
 
 # 4. Live Winner Announcement (Moved to the top for immediate mobile visibility)
-highest_score = max(team["puntaje"] for team in st.session_state.teams)
+highest_score = max(team["score"] for team in st.session_state.teams)
 winners = [team["name"] for team in st.session_state.teams if team["score"] == highest_score]
 
 if len(winners) == 1:

@@ -126,4 +126,3 @@ for idx, team in enumerate(st.session_state.teams):
                  args=(idx, 1), use_container_width=True)
 
    st.divider()
-Dont do anyhting just hold this

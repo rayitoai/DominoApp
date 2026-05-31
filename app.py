@@ -13,10 +13,16 @@ st.html("""
     [data-testid="stHorizontalBlock"] {
         gap: 0.4rem !important;
     }
-    /* Tightens the container margins */
+    
+    /* Safely pushes layout below the floating Streamlit deployment banner */
     .block-container {
-        padding-top: 1.5rem !important;
+        padding-top: 5rem !important;
         padding-bottom: 1.5rem !important;
+    }
+    
+    /* Hides extraneous floating decoration lines at the absolute top of the page if present */
+    header {
+        visibility: hidden !important;
     }
     
     /* Custom styling for the bold black score */
@@ -124,11 +130,9 @@ for idx, team in enumerate(st.session_state.teams):
             st.rerun()
 
     with col_score:
-        # Fixed line 115: Native st.html handling variables without rogue arguments
         st.html(f'<span class="score-badge">{team["score"]} pts</span>')
 
     with col_buttons:
-        # Fixed line 119: Wrapper HTML structure for the columns
         st.html('<div class="mobile-row-fix">')
         sub_col_minus, sub_col_plus = st.columns(2)
         

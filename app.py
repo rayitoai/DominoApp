@@ -20,27 +20,25 @@ st.html("""
         padding-bottom: 1.5rem !important;
     }
     
-    /* Hides extraneous floating decoration lines at the absolute top of the page if present */
+    /* Hides extraneous floating decoration lines at the absolute top of the page */
     header {
         visibility: hidden !important;
     }
     
-    /* Custom styling for the bold black score */
+    /* Custom styling for the bold black score badge */
     .score-badge {
         font-weight: 800 !important;
         color: #000000 !important;
-        font-size: 1.15rem;
-        text-align: center;
-        line-height: 2.5rem; /* Vertically centers text with the inputs */
+        font-size: 1.25rem;
+        text-align: right;
+        line-height: 2.5rem; /* Aligns vertically with the input box height */
         display: block;
+        padding-right: 0.5rem;
     }
     
-    /* Forces the minus and plus columns to stay on a single line on mobile phones */
-    @media (max-width: 640px) {
-        .mobile-row-fix div[data-testid="column"] {
-            flex: 1 1 auto !important;
-            width: auto !important;
-        }
+    /* Extra margin tightening for mobile card structures */
+    div[data-testid="stBlock"] {
+        margin-bottom: 0.2rem !important;
     }
 </style>
 """)
@@ -109,15 +107,14 @@ else:
 
 st.divider()
 
-# 5. Dynamic Scoreboard Matrix (Mobile-Optimized Rows)
+# 5. Dynamic Scoreboard Matrix (Mobile-Optimized Vertical Stack)
 st.subheader("📋 Puntuación Actual")
 
 for idx, team in enumerate(st.session_state.teams):
-    # Left-to-right order: Name (50%), Score (20%), Buttons Container (30%)
-    col_name, col_score, col_buttons = st.columns([5, 2, 3])
-
+    # --- ROW TOP LINE: Name input left (80%), Score badge right (20%) ---
+    col_name, col_score = st.columns([8, 2])
+    
     with col_name:
-        # Large text input for the team name
         new_name = st.text_input(
             f"Nombre del Equipo {idx+1}",
             value=team["name"],
@@ -132,25 +129,26 @@ for idx, team in enumerate(st.session_state.teams):
     with col_score:
         st.html(f'<span class="score-badge">{team["score"]} pts</span>')
 
-    with col_buttons:
-        st.html('<div class="mobile-row-fix">')
-        sub_col_minus, sub_col_plus = st.columns(2)
+    # --- ROW BOTTOM LINE: Big side-by-side action buttons directly underneath ---
+    col_minus, col_plus = st.columns(2)
+    
+    with col_minus:
+        st.button(
+            "➖", 
+            key=f"minus_{idx}", 
+            on_click=adjust_score, 
+            args=(idx, -1), 
+            use_container_width=True
+        )
         
-        with sub_col_minus:
-            st.button(
-                "➖", 
-                key=f"minus_{idx}", 
-                on_click=adjust_score, 
-                args=(idx, -1), 
-                use_container_width=True
-            )
-            
-        with sub_col_plus:
-            st.button(
-                "➕", 
-                key=f"plus_{idx}", 
-                on_click=adjust_score, 
-                args=(idx, 1), 
-                use_container_width=True
-            )
-        st.html('</div>')
+    with col_plus:
+        st.button(
+            "➕", 
+            key=f"plus_{idx}", 
+            on_click=adjust_score, 
+            args=(idx, 1), 
+            use_container_width=True
+        )
+    
+    # A light spacer between the team block clusters to keep it organized
+    st.write("")

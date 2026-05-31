@@ -36,16 +36,19 @@ st.html("""
         padding-right: 0.5rem;
     }
     
-    /* FORCES the nested 2-column layout to stay on one line on phones */
-    .force-inline-columns [data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        width: 100% !important;
-    }
-    .force-inline-columns [data-testid="column"] {
-        width: 50% !important;
-        flex: 1 1 auto !important;
+    /* GLOBAL MOBILE OVERRIDE: Forces ALL columns to stay horizontal on mobile views */
+    @media (max-width: 640px) {
+        div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            width: 100% !important;
+            gap: 0.4rem !important;
+        }
+        div[data-testid="column"] {
+            flex: 1 1 auto !important;
+            width: auto !important;
+        }
     }
 </style>
 """)
@@ -118,7 +121,7 @@ st.divider()
 st.subheader("📋 Puntuación Actual")
 
 for idx, team in enumerate(st.session_state.teams):
-    # --- ROW TOP LINE: Name input left (80%), Score badge right (20%) ---
+    # --- ROW TOP LINE: Name input left, Score badge right ---
     col_name, col_score = st.columns([8, 2])
     
     with col_name:
@@ -130,35 +133,32 @@ for idx, team in enumerate(st.session_state.teams):
         )
         if new_name != team["name"]:
             save_to_history()
-            st.session_state.teams[idx["name"]] = new_name
+            st.session_state.teams[idx]["name"] = new_name
             st.rerun()
 
     with col_score:
         st.html(f'<span class="score-badge">{team["score"]} pts</span>')
 
-    # --- ROW BOTTOM LINE: 2 Column wrap locked horizontally via parent CSS scoping ---
-    with st.container(key=f"inline_block_{idx}"):
-        st.html('<div class="force-inline-columns">')
-        sub_minus, sub_plus = st.columns(2)
+    # --- ROW BOTTOM LINE: 2 Column wrap forced horizontally ---
+    sub_minus, sub_plus = st.columns(2)
+    
+    with sub_minus:
+        st.button(
+            "➖", 
+            key=f"minus_{idx}", 
+            on_click=adjust_score, 
+            args=(idx, -1), 
+            use_container_width=True
+        )
         
-        with sub_minus:
-            st.button(
-                "➖", 
-                key=f"minus_{idx}", 
-                on_click=adjust_score, 
-                args=(idx, -1), 
-                use_container_width=True
-            )
-            
-        with sub_plus:
-            st.button(
-                "➕", 
-                key=f"plus_{idx}", 
-                on_click=adjust_score, 
-                args=(idx, 1), 
-                use_container_width=True
-            )
-        st.html('</div>')
+    with sub_plus:
+        st.button(
+            "➕", 
+            key=f"plus_{idx}", 
+            on_click=adjust_score, 
+            args=(idx, 1), 
+            use_container_width=True
+        )
     
     # Tiny spacer element between card blocks
     st.write("")

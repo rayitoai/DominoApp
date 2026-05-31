@@ -121,44 +121,4 @@ st.divider()
 st.subheader("📋 Puntuación Actual")
 
 for idx, team in enumerate(st.session_state.teams):
-    # --- ROW TOP LINE: Name input left, Score badge right ---
-    col_name, col_score = st.columns([8, 2])
-    
-    with col_name:
-        new_name = st.text_input(
-            f"Nombre del Equipo {idx+1}",
-            value=team["name"],
-            key=f"name_{idx}",
-            label_visibility="collapsed"
-        )
-        if new_name != team["name"]:
-            save_to_history()
-            st.session_state.teams[idx]["name"] = new_name
-            st.rerun()
-
-    with col_score:
-        st.html(f'<span class="score-badge">{team["score"]} pts</span>')
-
-    # --- ROW BOTTOM LINE: 2 Column wrap forced horizontally ---
-    sub_minus, sub_plus = st.columns(2)
-    
-    with sub_minus:
-        st.button(
-            "➖", 
-            key=f"minus_{idx}", 
-            on_click=adjust_score, 
-            args=(idx, -1), 
-            use_container_width=True
-        )
-        
-    with sub_plus:
-        st.button(
-            "➕", 
-            key=f"plus_{idx}", 
-            on_click=adjust_score, 
-            args=(idx, 1), 
-            use_container_width=True
-        )
-    
-    # Tiny spacer element between card blocks
-    st.write("")
+    # --- ROW TOP LINE: Name input left

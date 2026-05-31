@@ -44,25 +44,25 @@ col_add, col_undo, col_reset = st.columns(3)
 with col_add:
     st.button("➕ Equipo", on_click=add_new_team, use_container_width=True)
 with col_undo:
-    st.button("↩️ Undo", on_click=undo_last, use_container_width=True, type="primary")
+    st.button("↩️ Deshacer", on_click=undo_last, use_container_width=True, type="primary")
 with col_reset:
-    st.button("🔄 Reset", on_click=reset_all, use_container_width=True)
+    st.button("🔄 Reiniciar", on_click=reset_all, use_container_width=True)
 
 st.divider()
 
 # 4. Live Winner Announcement (Moved to the top for immediate mobile visibility)
-highest_score = max(team["score"] for team in st.session_state.teams)
+highest_score = max(team["puntaje"] for team in st.session_state.teams)
 winners = [team["name"] for team in st.session_state.teams if team["score"] == highest_score]
 
 if len(winners) == 1:
-    st.success(f"👑 **Leader:** {winners[0]} ({highest_score} pts)")
+    st.success(f"👑 **Lider:** {winners[0]} ({highest_score} pts)")
 else:
-    st.info(f"🤝 **Tie for 1st:** {', '.join(winners)} ({highest_score} pts)")
+    st.info(f"🤝 **Empate en 1er lugar:** {', '.join(winners)} ({highest_score} pts)")
 
 st.divider()
 
 # 5. Dynamic Scoreboard Matrix (Mobile-Optimized Rows)
-st.subheader("📋 Live Scores")
+st.subheader("📋 Puntuación Actual")
 
 for idx, team in enumerate(st.session_state.teams):
     # Using a 2-column card-like layout for each team

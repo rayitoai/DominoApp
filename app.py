@@ -22,7 +22,7 @@ def undo_last():
     if st.session_state.history:
         st.session_state.teams = st.session_state.history.pop()
     else:
-        st.toast("🚨 Nothing left to undo!")
+        st.toast("🚨 ¡No hay nada más que deshacer!")
 
 def add_new_team():
     save_to_history()
@@ -37,7 +37,7 @@ def reset_all():
     st.session_state.history = []
 
 # 3. UI Layout
-st.title("🁣🁤🁥🁦 Puntaje Domino")
+st.title("🁣🁤🁥🁦 Puntaje Dominó")
 
 # Global Controls - Stacked in 3 columns that adapt well to mobile
 col_add, col_undo, col_reset = st.columns(3)
@@ -55,7 +55,7 @@ highest_score = max(team["score"] for team in st.session_state.teams)
 winners = [team["name"] for team in st.session_state.teams if team["score"] == highest_score]
 
 if len(winners) == 1:
-    st.success(f"👑 **Lider:** {winners[0]} ({highest_score} pts)")
+    st.success(f"👑 **Líder:** {winners[0]} ({highest_score} pts)")
 else:
     st.info(f"🤝 **Empate en 1er lugar:** {', '.join(winners)} ({highest_score} pts)")
 
@@ -71,7 +71,7 @@ for idx, team in enumerate(st.session_state.teams):
     with col_card_left:
         # Large text input for the team name
         new_name = st.text_input(
-            f"Equipo {idx+1} Name",
+            f"Nombre del Equipo {idx+1}",
             value=team["name"],
             key=f"name_{idx}",
             label_visibility="collapsed"
@@ -84,7 +84,7 @@ for idx, team in enumerate(st.session_state.teams):
     with col_card_right:
         # Native number input provides large, easy-to-tap minus/plus stepper buttons on mobile
         new_score = st.number_input(
-            f"Score {idx}",
+            f"Puntos {idx}",
             value=team["score"],
             step=1,
             key=f"score_in_{idx}",

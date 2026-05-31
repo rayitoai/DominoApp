@@ -1,4 +1,4 @@
-import streamlit as st
+\import streamlit as st
 
 # Set page configuration to wide/responsive by default
 st.set_page_config(page_title="Domino", layout="centered")
@@ -36,14 +36,13 @@ st.html("""
         padding-left: 0.2rem;
     }
 
-    /* Target the container wrapping the +/- buttons to center them */
-    .center-btn-row [data-testid="stHorizontalBlock"] {
+    /* Centers the button horizontal block on mobile viewports */
+    div[data-testid="stHorizontalBlock"] {
         justify-content: center !important;
-        gap: 1rem !important;
     }
 
-    /* FORCE native Streamlit buttons to be small, compact, and fixed-width */
-    .center-btn-row div[data-testid="element-container"] button {
+    /* HARD LOCK: Overrides native Streamlit button stretching to keep them small and compact */
+    div[data-testid="element-container"] button[p-id] {
         max-width: 70px !important;
         min-width: 70px !important;
         height: 42px !important;
@@ -155,29 +154,26 @@ for idx, team in enumerate(st.session_state.teams):
     with col_score:
         st.html(f'<span class="score-badge">{team["score"]} pts</span>')
 
-    # --- ROW BOTTOM LINE: Native buttons forced to 70px width via parent CSS container ---
-    with st.container(key=f"button_row_{idx}"):
-        st.html('<div class="center-btn-row">')
-        sub_minus, sub_plus = st.columns(2)
+    # --- ROW BOTTOM LINE: Native layout columns overridden to tight centered buttons ---
+    sub_minus, sub_plus = st.columns(2)
+    
+    with sub_minus:
+        st.button(
+            "➖", 
+            key=f"minus_{idx}", 
+            on_click=adjust_score, 
+            args=(idx, -1), 
+            use_container_width=True
+        )
         
-        with sub_minus:
-            st.button(
-                "➖", 
-                key=f"minus_{idx}", 
-                on_click=adjust_score, 
-                args=(idx, -1), 
-                use_container_width=True
-            )
-            
-        with sub_plus:
-            st.button(
-                "➕", 
-                key=f"plus_{idx}", 
-                on_click=adjust_score, 
-                args=(idx, 1), 
-                use_container_width=True
-            )
-        st.html('</div>')
+    with sub_plus:
+        st.button(
+            "➕", 
+            key=f"plus_{idx}", 
+            on_click=adjust_score, 
+            args=(idx, 1), 
+            use_container_width=True
+        )
     
     # Tiny spacer element between card blocks
     st.write("")

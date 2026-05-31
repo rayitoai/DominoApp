@@ -1,4 +1,4 @@
-\import streamlit as st
+import streamlit as st
 
 # Set page configuration to wide/responsive by default
 st.set_page_config(page_title="Domino", layout="centered")

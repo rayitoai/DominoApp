@@ -112,11 +112,11 @@ for idx, team in enumerate(st.session_state.teams):
 
     with col_score:
         # Bold black text element right after the name
-        st.markdown(f'<span class="score-badge">{team["score"]} pts</span>', unsafe_allowed_html=True)
+        st.html(f'<span class="score-badge">{team["score"]} pts</span>', unsafe_allowed_html=True)
 
     with col_buttons:
         # HTML element to target and force columns to stay inline on small screens
-        st.markdown('<div class="mobile-row-fix">', unsafe_allowed_html=True)
+        st.html('<div class="mobile-row-fix">', unsafe_allowed_html=True)
         sub_col_minus, sub_col_plus = st.columns(2)
         
         with sub_col_minus:
@@ -136,4 +136,4 @@ for idx, team in enumerate(st.session_state.teams):
                 args=(idx, 1), 
                 use_container_width=True
             )
-        st.markdown('</div>', unsafe_allowed_html=True)
+        st.html('</div>', unsafe_allowed_html=True)

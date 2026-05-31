@@ -3,6 +3,42 @@ import streamlit as st
 # Set page configuration to wide/responsive by default
 st.set_page_config(page_title="Domino", layout="centered")
 
+# Custom CSS to reduce spacing, style the score, and force buttons on one line on mobile
+st.markdown("""
+    <style>
+        /* Reduces space between rows and columns */
+        [data-testid="stVerticalBlock"] {
+            gap: 0.4rem !important;
+        }
+        [data-testid="stHorizontalBlock"] {
+            gap: 0.4rem !important;
+        }
+        /* Tightens the container margins */
+        .block-container {
+            padding-top: 1.5rem !important;
+            padding-bottom: 1.5rem !important;
+        }
+        
+        /* Custom styling for the bold black score */
+        .score-badge {
+            font-weight: 800 !important;
+            color: #000000 !important;
+            font-size: 1.15rem;
+            text-align: center;
+            line-height: 2.5rem; /* Vertically centers text with the inputs */
+            display: block;
+        }
+        
+        /* Forces the minus and plus columns to stay on a single line on mobile phones */
+        @media (max-width: 640px) {
+            .mobile-row-fix div[data-testid="column"] {
+                flex: 1 1 auto !important;
+                width: auto !important;
+            }
+        }
+    </style>
+""", unsafe_allowed_html=True)
+
 # 1. Initialize App State
 if "teams" not in st.session_state:
     st.session_state.teams = [
@@ -70,8 +106,8 @@ st.divider()
 st.subheader("📋 Puntuación Actual")
 
 for idx, team in enumerate(st.session_state.teams):
-    # Left-to-right order: Name (50%), Score Badge (20%), Minus (15%), Plus (15%)
-    col_name, col_score, col_minus, col_plus = st.columns([5, 2, 1.5, 1.5])
+    # Left-to-right order: Name (50%), Score (20%), Buttons Container (30%)
+    col_name, col_score, col_buttons = st.columns([5, 2, 3])
 
     with col_name:
         # Large text input for the team name
@@ -87,30 +123,29 @@ for idx, team in enumerate(st.session_state.teams):
             st.rerun()
 
     with col_score:
-        # Displays points securely right after the name (Disabled button serves as a clean text badge)
-        st.button(
-            f"{team['score']} pts", 
-            key=f"badge_{idx}", 
-            disabled=True, 
-            use_container_width=True
-        )
+        # Bold black text element right after the name
+        st.markdown(f'<span class="score-badge">{team["score"]} pts</span>', unsafe_allowed_html=True)
 
-    with col_minus:
-        # Pure step-down button
-        st.button(
-            "➖", 
-            key=f"minus_{idx}", 
-            on_click=adjust_score, 
-            args=(idx, -1), 
-            use_container_width=True
-        )
-
-    with col_plus:
-        # Pure step-up button
-        st.button(
-            "➕", 
-            key=f"plus_{idx}", 
-            on_click=adjust_score, 
-            args=(idx, 1), 
-            use_container_width=True
-        )
+    with col_buttons:
+        # HTML element to target and force columns to stay inline on small screens
+        st.markdown('<div class="mobile-row-fix">', unsafe_allowed_html=True)
+        sub_col_minus, sub_col_plus = st.columns(2)
+        
+        with sub_col_minus:
+            st.button(
+                "➖", 
+                key=f"minus_{idx}", 
+                on_click=adjust_score, 
+                args=(idx, -1), 
+                use_container_width=True
+            )
+            
+        with sub_col_plus:
+            st.button(
+                "➕", 
+                key=f"plus_{idx}", 
+                on_click=adjust_score, 
+                args=(idx, 1), 
+                use_container_width=True
+            )
+        st.markdown('</div>', unsafe_allowed_html=True)

@@ -69,6 +69,7 @@ def reset_all():
     st.session_state.teams = [
         {"name": "Equipo 1", "score": 0},
         {"name": "Equipo 2", "score": 0},
+        {"name": "Equipo 3", "score": 0},
     ]
     st.session_state.history = []
 

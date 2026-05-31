@@ -5,13 +5,13 @@ st.set_page_config(page_title="Domino Scoreboard", layout="centered")
 
 # 1. Initialize App State
 if "teams" not in st.session_state:
-st.session_state.teams = [
-{"name": "Team Alpha", "score": 0},
-{"name": "Team Bravo", "score": 0},
-{"name": "Team Charlie", "score": 0},
+  st.session_state.teams = [
+  {"name": "Team Alpha", "score": 0},
+  {"name": "Team Bravo", "score": 0},
+  {"name": "Team Charlie", "score": 0},
 ]
 if "history" not in st.session_state:
-st.session_state.history = [] # Stores deep copies for Undo
+  st.session_state.history = [] # Stores deep copies for Undo
 
 # 2. Helper Functions
 def save_to_history():

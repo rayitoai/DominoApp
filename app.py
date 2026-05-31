@@ -3,7 +3,7 @@ import streamlit as st
 # Set page configuration to wide/responsive by default
 st.set_page_config(page_title="Domino", layout="centered")
 
-# Custom CSS using native st.html to perfectly scale and center buttons
+# Custom CSS using native st.html to style and size the custom button layout
 st.html("""
 <style>
     /* Reduces space between rows and columns */
@@ -35,23 +35,44 @@ st.html("""
         display: block;
         padding-right: 0.5rem;
     }
+
+    /* Centers the custom button row and makes it half size */
+    .custom-btn-row {
+        display: flex !important;
+        justify-content: center !important;
+        gap: 1rem !important;
+        width: 100% !important;
+        margin: 0.2rem 0 !important;
+    }
+
+    /* Sets an exact smaller physical size for the buttons on mobile */
+    .custom-mobile-btn {
+        width: 70px !important;
+        height: 42px !important;
+        font-size: 1.2rem !important;
+        background-color: #f0f2f6 !important;
+        border: 1px solid #b9bcc4 !important;
+        border-radius: 8px !important;
+        color: #31333F !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0px 2px 4px rgba(0,0,0,0.05) !important;
+    }
     
-    /* MOBILE FORMATTING OVERRIDE */
+    .custom-mobile-btn:active {
+        background-color: #e0e2e6 !important;
+    }
+    
+    /* GLOBAL MOBILE OVERRIDE: Forces top Name/Score row to stay horizontal */
     @media (max-width: 640px) {
-        /* The Name/Score row stays full width */
         div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: nowrap !important;
             width: 100% !important;
         }
-        
-        /* Targets the button block container specifically */
-        .half-width-buttons div[data-testid="stHorizontalBlock"] {
-            width: 50% !important;        /* Constrains container to half size */
-            margin: 0 auto !important;    /* Centers it horizontally */
-        }
-        
         div[data-testid="column"] {
             flex: 1 1 auto !important;
             width: auto !important;
@@ -94,7 +115,7 @@ def reset_all():
     ]
     st.session_state.history = []
 
-# Inline score modification helpers to keep code clean
+# Inline score modification helpers
 def adjust_score(idx, amount):
     save_to_history()
     st.session_state.teams[idx]["score"] += amount
@@ -146,29 +167,21 @@ for idx, team in enumerate(st.session_state.teams):
     with col_score:
         st.html(f'<span class="score-badge">{team["score"]} pts</span>')
 
-    # --- ROW BOTTOM LINE: Contained within a parent div to apply the half-width styling ---
-    with st.container(key=f"button_wrap_{idx}"):
-        st.html('<div class="half-width-buttons">')
-        sub_minus, sub_plus = st.columns(2)
-        
-        with sub_minus:
-            st.button(
-                "➖", 
-                key=f"minus_{idx}", 
-                on_click=adjust_score, 
-                args=(idx, -1), 
-                use_container_width=True
-            )
-            
-        with sub_plus:
-            st.button(
-                "➕", 
-                key=f"plus_{idx}", 
-                on_click=adjust_score, 
-                args=(idx, 1), 
-                use_container_width=True
-            )
-        st.html('</div>')
+    # --- ROW BOTTOM LINE: HTML Form triggers invisible Python click events natively ---
+    # This renders explicit 70px buttons that cannot stretch or overflow on mobile screens.
+    st.html(f"""
+    <div class="custom-btn-row">
+        <button class="custom-mobile-btn" onclick="document.getElementById('hidden_minus_{idx}').click()">➖</button>
+        <button class="custom-mobile-btn" onclick="document.getElementById('hidden_plus_{idx}').click()">➕</button>
+    </div>
+    """)
+
+    # Hidden background hooks that map HTML click events back to Streamlit logic seamlessly
+    with st.container():
+        st.html("<div style='display:none;'>")
+        st.button("hidden_minus", key=f"hidden_minus_{idx}", on_click=adjust_score, args=(idx, -1))
+        st.button("hidden_plus", key=f"hidden_plus_{idx}", on_click=adjust_score, args=(idx, 1))
+        st.html("</div>")
     
     # Tiny spacer element between card blocks
     st.write("")

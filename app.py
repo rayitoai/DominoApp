@@ -3,7 +3,7 @@ import streamlit as st
 # Set page configuration to wide/responsive by default
 st.set_page_config(page_title="Domino", layout="centered")
 
-# Custom CSS using native st.html to prevent responsive mobile stacking
+# Custom CSS using native st.html to perfectly scale and center buttons
 st.html("""
 <style>
     /* Reduces space between rows and columns */
@@ -36,15 +36,22 @@ st.html("""
         padding-right: 0.5rem;
     }
     
-    /* GLOBAL MOBILE OVERRIDE: Forces ALL columns to stay horizontal on mobile views */
+    /* MOBILE FORMATTING OVERRIDE */
     @media (max-width: 640px) {
+        /* The Name/Score row stays full width */
         div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: nowrap !important;
             width: 100% !important;
-            gap: 0.4rem !important;
         }
+        
+        /* Targets the button block container specifically */
+        .half-width-buttons div[data-testid="stHorizontalBlock"] {
+            width: 50% !important;        /* Constrains container to half size */
+            margin: 0 auto !important;    /* Centers it horizontally */
+        }
+        
         div[data-testid="column"] {
             flex: 1 1 auto !important;
             width: auto !important;
@@ -121,4 +128,47 @@ st.divider()
 st.subheader("📋 Puntuación Actual")
 
 for idx, team in enumerate(st.session_state.teams):
-    # --- ROW TOP LINE: Name input left
+    # --- ROW TOP LINE: Name input left, Score badge right ---
+    col_name, col_score = st.columns([8, 2])
+    
+    with col_name:
+        new_name = st.text_input(
+            f"Nombre del Equipo {idx+1}",
+            value=team["name"],
+            key=f"name_{idx}",
+            label_visibility="collapsed"
+        )
+        if new_name != team["name"]:
+            save_to_history()
+            st.session_state.teams[idx]["name"] = new_name
+            st.rerun()
+
+    with col_score:
+        st.html(f'<span class="score-badge">{team["score"]} pts</span>')
+
+    # --- ROW BOTTOM LINE: Contained within a parent div to apply the half-width styling ---
+    with st.container(key=f"button_wrap_{idx}"):
+        st.html('<div class="half-width-buttons">')
+        sub_minus, sub_plus = st.columns(2)
+        
+        with sub_minus:
+            st.button(
+                "➖", 
+                key=f"minus_{idx}", 
+                on_click=adjust_score, 
+                args=(idx, -1), 
+                use_container_width=True
+            )
+            
+        with sub_plus:
+            st.button(
+                "➕", 
+                key=f"plus_{idx}", 
+                on_click=adjust_score, 
+                args=(idx, 1), 
+                use_container_width=True
+            )
+        st.html('</div>')
+    
+    # Tiny spacer element between card blocks
+    st.write("")

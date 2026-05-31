@@ -2,37 +2,7 @@ import streamlit as st
 
 st.set_page_config(page_title="Domino", layout="centered")
 
-st.html("""
-<style>
-   [data-testid="stVerticalBlock"] {
-       gap: 0.3rem !important;
-   }
-   .block-container {
-       padding-top: 1.5rem !important;
-       padding-bottom: 1rem !important;
-   }
-   header {
-       visibility: hidden !important;
-   }
-   .safari-score {
-       font-weight: 800 !important;
-       color: #000000 !important;
-       font-size: 1.4rem !important;
-       display: block !important;
-       text-align: center !important;
-       line-height: 2.5rem !important;
-       white-space: nowrap !important;
-   }
-   button[kind="secondary"], button[kind="primary"] {
-       min-height: 3rem !important;
-       font-size: 1.2rem !important;
-   }
-   button:active {
-       transform: scale(0.95) !important;
-       transition: transform 0.1s !important;
-   }
-</style>
-""")
+
 
 # 1. Initialize App State
 if "teams" not in st.session_state:

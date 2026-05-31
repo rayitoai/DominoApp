@@ -15,8 +15,8 @@ if "history" not in st.session_state:
 
 # 2. Helper Functions
 def save_to_history():
-snapshot = [team.copy() for team in st.session_state.teams]
-st.session_state.history.append(snapshot)
+  snapshot = [team.copy() for team in st.session_state.teams]
+  st.session_state.history.append(snapshot)
 
 def undo_last():
 if st.session_state.history:

@@ -3,7 +3,7 @@ import streamlit as st
 # Set page configuration to wide/responsive by default
 st.set_page_config(page_title="Domino", layout="centered")
 
-# Custom CSS using native st.html to style and size the custom button layout
+# Custom CSS using native st.html to perfectly position and hide elements
 st.html("""
 <style>
     /* Reduces space between rows and columns */
@@ -25,15 +25,15 @@ st.html("""
         visibility: hidden !important;
     }
     
-    /* Custom styling for the bold black score badge */
+    /* Custom styling for the bold black score badge - now aligns left close to name */
     .score-badge {
         font-weight: 800 !important;
         color: #000000 !important;
-        font-size: 1.25rem;
-        text-align: right;
+        font-size: 1.15rem;
+        text-align: left !important;
         line-height: 2.5rem; /* Aligns vertically with the input box height */
         display: block;
-        padding-right: 0.5rem;
+        padding-left: 0.2rem;
     }
 
     /* Centers the custom button row and makes it half size */
@@ -63,6 +63,17 @@ st.html("""
     
     .custom-mobile-btn:active {
         background-color: #e0e2e6 !important;
+    }
+    
+    /* HARD LOCK: Completely hides the fallback macro-buttons from Streamlit framework */
+    div[data-testid="element-container"] button[id^="hidden-minus"],
+    div[data-testid="element-container"] button[id^="hidden-plus"],
+    .hidden-trigger-zone {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0px !important;
+        padding: 0px !important;
+        margin: 0px !important;
     }
     
     /* GLOBAL MOBILE OVERRIDE: Forces top Name/Score row to stay horizontal */
@@ -149,8 +160,8 @@ st.divider()
 st.subheader("📋 Puntuación Actual")
 
 for idx, team in enumerate(st.session_state.teams):
-    # --- ROW TOP LINE: Name input left, Score badge right ---
-    col_name, col_score = st.columns([8, 2])
+    # --- ROW TOP LINE: Ratio shifted to [4, 1] to pull score closer to name ---
+    col_name, col_score = st.columns([4, 1])
     
     with col_name:
         new_name = st.text_input(
@@ -167,8 +178,7 @@ for idx, team in enumerate(st.session_state.teams):
     with col_score:
         st.html(f'<span class="score-badge">{team["score"]} pts</span>')
 
-    # --- ROW BOTTOM LINE: HTML Form triggers invisible Python click events natively ---
-    # This renders explicit 70px buttons that cannot stretch or overflow on mobile screens.
+    # --- ROW BOTTOM LINE: Custom HTML Buttons ---
     st.html(f"""
     <div class="custom-btn-row">
         <button class="custom-mobile-btn" onclick="document.getElementById('hidden_minus_{idx}').click()">➖</button>
@@ -176,12 +186,12 @@ for idx, team in enumerate(st.session_state.teams):
     </div>
     """)
 
-    # Hidden background hooks that map HTML click events back to Streamlit logic seamlessly
+    # Hidden macro elements isolated inside a class targeted directly by CSS display: none
     with st.container():
-        st.html("<div style='display:none;'>")
+        st.html('<div class="hidden-trigger-zone">')
         st.button("hidden_minus", key=f"hidden_minus_{idx}", on_click=adjust_score, args=(idx, -1))
         st.button("hidden_plus", key=f"hidden_plus_{idx}", on_click=adjust_score, args=(idx, 1))
-        st.html("</div>")
+        st.html('</div>')
     
     # Tiny spacer element between card blocks
     st.write("")

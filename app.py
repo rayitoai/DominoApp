@@ -3,70 +3,41 @@ import streamlit as st
 # Set page configuration to wide/responsive by default
 st.set_page_config(page_title="Domino", layout="centered")
 
-# Custom CSS using native st.html to perfectly position and shrink elements
-st.html("""
-<style>
-    /* Reduces space between rows and columns */
-    [data-testid="stVerticalBlock"] {
-        gap: 0.4rem !important;
-    }
-    [data-testid="stHorizontalBlock"] {
-        gap: 0.4rem !important;
-    }
-    
-    /* Safely pushes layout below the floating Streamlit deployment banner */
-    .block-container {
-        padding-top: 5rem !important;
-        padding-bottom: 1.5rem !important;
-    }
-    
-    /* Hides extraneous floating decoration lines at the absolute top of the page */
-    header {
-        visibility: hidden !important;
-    }
-    
-    /* Custom styling for the bold black score badge */
-    .score-badge {
-        font-weight: 800 !important;
-        color: #000000 !important;
-        font-size: 1.15rem;
-        text-align: left !important;
-        line-height: 2.5rem; /* Aligns vertically with the input box height */
-        display: block;
-        padding-left: 0.2rem;
-    }
-
-    /* Centers the button horizontal block on mobile viewports */
-    div[data-testid="stHorizontalBlock"] {
-        justify-content: center !important;
-    }
-
-    /* HARD LOCK: Overrides native Streamlit button stretching to keep them small and compact */
-    div[data-testid="element-container"] button[p-id] {
-        max-width: 70px !important;
-        min-width: 70px !important;
-        height: 42px !important;
-        padding: 0px !important;
-        font-size: 1.2rem !important;
-        margin: 0 auto !important;
-        display: block !important;
-    }
-    
-    /* GLOBAL MOBILE OVERRIDE: Forces rows to stay horizontal on mobile views */
-    @media (max-width: 640px) {
-        div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            width: 100% !important;
+# Custom CSS to reduce spacing, style the score, and force buttons on one line on mobile
+st.markdown("""
+    <style>
+        /* Reduces space between rows and columns */
+        [data-testid="stVerticalBlock"] {
+            gap: 0.4rem !important;
         }
-        div[data-testid="column"] {
-            flex: 1 1 auto !important;
-            width: auto !important;
+        [data-testid="stHorizontalBlock"] {
+            gap: 0.4rem !important;
         }
-    }
-</style>
-""")
+        /* Tightens the container margins */
+        .block-container {
+            padding-top: 1.5rem !important;
+            padding-bottom: 1.5rem !important;
+        }
+        
+        /* Custom styling for the bold black score */
+        .score-badge {
+            font-weight: 800 !important;
+            color: #000000 !important;
+            font-size: 1.15rem;
+            text-align: center;
+            line-height: 2.5rem; /* Vertically centers text with the inputs */
+            display: block;
+        }
+        
+        /* Forces the minus and plus columns to stay on a single line on mobile phones */
+        @media (max-width: 640px) {
+            .mobile-row-fix div[data-testid="column"] {
+                flex: 1 1 auto !important;
+                width: auto !important;
+            }
+        }
+    </style>
+""", unsafe_allowed_html=True)
 
 # 1. Initialize App State
 if "teams" not in st.session_state:
@@ -98,11 +69,10 @@ def reset_all():
     st.session_state.teams = [
         {"name": "Equipo 1", "score": 0},
         {"name": "Equipo 2", "score": 0},
-        {"name": "Equipo 3", "score": 0},
     ]
     st.session_state.history = []
 
-# Inline score modification helpers
+# Inline score modification helpers to keep code clean
 def adjust_score(idx, amount):
     save_to_history()
     st.session_state.teams[idx]["score"] += amount
@@ -132,14 +102,15 @@ else:
 
 st.divider()
 
-# 5. Dynamic Scoreboard Matrix (Mobile-Optimized Vertical Stack)
+# 5. Dynamic Scoreboard Matrix (Mobile-Optimized Rows)
 st.subheader("📋 Puntuación Actual")
 
 for idx, team in enumerate(st.session_state.teams):
-    # --- ROW TOP LINE: Ratio shifted to [4, 1] to pull score closer to name ---
-    col_name, col_score = st.columns([4, 1])
-    
+    # Left-to-right order: Name (50%), Score (20%), Buttons Container (30%)
+    col_name, col_score, col_buttons = st.columns([5, 2, 3])
+
     with col_name:
+        # Large text input for the team name
         new_name = st.text_input(
             f"Nombre del Equipo {idx+1}",
             value=team["name"],
@@ -152,28 +123,29 @@ for idx, team in enumerate(st.session_state.teams):
             st.rerun()
 
     with col_score:
-        st.html(f'<span class="score-badge">{team["score"]} pts</span>')
+        # Bold black text element right after the name
+        st.markdown(f'<span class="score-badge">{team["score"]} pts</span>', unsafe_allowed_html=True)
 
-    # --- ROW BOTTOM LINE: Native layout columns overridden to tight centered buttons ---
-    sub_minus, sub_plus = st.columns(2)
-    
-    with sub_minus:
-        st.button(
-            "➖", 
-            key=f"minus_{idx}", 
-            on_click=adjust_score, 
-            args=(idx, -1), 
-            use_container_width=True
-        )
+    with col_buttons:
+        # HTML element to target and force columns to stay inline on small screens
+        st.markdown('<div class="mobile-row-fix">', unsafe_allowed_html=True)
+        sub_col_minus, sub_col_plus = st.columns(2)
         
-    with sub_plus:
-        st.button(
-            "➕", 
-            key=f"plus_{idx}", 
-            on_click=adjust_score, 
-            args=(idx, 1), 
-            use_container_width=True
-        )
-    
-    # Tiny spacer element between card blocks
-    st.write("")
+        with sub_col_minus:
+            st.button(
+                "➖", 
+                key=f"minus_{idx}", 
+                on_click=adjust_score, 
+                args=(idx, -1), 
+                use_container_width=True
+            )
+            
+        with sub_col_plus:
+            st.button(
+                "➕", 
+                key=f"plus_{idx}", 
+                on_click=adjust_score, 
+                args=(idx, 1), 
+                use_container_width=True
+            )
+        st.markdown('</div>', unsafe_allowed_html=True)

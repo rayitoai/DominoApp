@@ -3,7 +3,7 @@ import streamlit as st
 # Set page configuration to wide/responsive by default
 st.set_page_config(page_title="Domino", layout="centered")
 
-# Custom CSS using native st.html to force true mobile layouts
+# Custom CSS using native st.html to prevent responsive mobile stacking
 st.html("""
 <style>
     /* Reduces space between rows and columns */
@@ -36,15 +36,16 @@ st.html("""
         padding-right: 0.5rem;
     }
     
-    /* FORCES the plus and minus buttons to stay horizontal on phones */
-    .mobile-button-row [data-testid="stMetricVitalsColumn"] {
+    /* FORCES the nested 2-column layout to stay on one line on phones */
+    .force-inline-columns [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
-        gap: 0.5rem !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
     }
-    .mobile-button-row div[data-testid="element-container"] {
-        display: inline-block !important;
-        width: 48% !important; /* Spreads them perfectly across the screen width */
+    .force-inline-columns [data-testid="column"] {
+        width: 50% !important;
+        flex: 1 1 auto !important;
     }
 </style>
 """)
@@ -129,30 +130,35 @@ for idx, team in enumerate(st.session_state.teams):
         )
         if new_name != team["name"]:
             save_to_history()
-            st.session_state.teams[idx]["name"] = new_name
+            st.session_state.teams[idx["name"]] = new_name
             st.rerun()
 
     with col_score:
         st.html(f'<span class="score-badge">{team["score"]} pts</span>')
 
-    # --- ROW BOTTOM LINE: Hard-locked horizontal tap zones directly underneath ---
-    with st.container(key=f"btn_holder_{idx}"):
-        st.html('<div class="mobile-button-row">')
-        st.button(
-            "➖", 
-            key=f"minus_{idx}", 
-            on_click=adjust_score, 
-            args=(idx, -1), 
-            use_container_width=True
-        )
-        st.button(
-            "➕", 
-            key=f"plus_{idx}", 
-            on_click=adjust_score, 
-            args=(idx, 1), 
-            use_container_width=True
-        )
+    # --- ROW BOTTOM LINE: 2 Column wrap locked horizontally via parent CSS scoping ---
+    with st.container(key=f"inline_block_{idx}"):
+        st.html('<div class="force-inline-columns">')
+        sub_minus, sub_plus = st.columns(2)
+        
+        with sub_minus:
+            st.button(
+                "➖", 
+                key=f"minus_{idx}", 
+                on_click=adjust_score, 
+                args=(idx, -1), 
+                use_container_width=True
+            )
+            
+        with sub_plus:
+            st.button(
+                "➕", 
+                key=f"plus_{idx}", 
+                on_click=adjust_score, 
+                args=(idx, 1), 
+                use_container_width=True
+            )
         st.html('</div>')
     
-    # A small divider space to clearly group individual team sections together
+    # Tiny spacer element between card blocks
     st.write("")

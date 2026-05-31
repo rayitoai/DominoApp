@@ -3,41 +3,28 @@ import streamlit as st
 # Set page configuration to wide/responsive by default
 st.set_page_config(page_title="Domino", layout="centered")
 
-# Custom CSS to reduce spacing, style the score, and force buttons on one line on mobile
-st.markdown("""
-    <style>
-        /* Reduces space between rows and columns */
-        [data-testid="stVerticalBlock"] {
-            gap: 0.4rem !important;
+# Custom CSS converted to a clean string format to bypass Python 3.14 string parsing bugs
+st.html("""
+<style>
+    [data-testid="stVerticalBlock"] { gap: 0.4rem !important; }
+    [data-testid="stHorizontalBlock"] { gap: 0.4rem !important; }
+    .block-container { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+    .score-badge {
+        font-weight: 800 !important;
+        color: #000000 !important;
+        font-size: 1.15rem;
+        text-align: center;
+        line-height: 2.5rem;
+        display: block;
+    }
+    @media (max-width: 640px) {
+        .mobile-row-fix div[data-testid="column"] {
+            flex: 1 1 auto !important;
+            width: auto !important;
         }
-        [data-testid="stHorizontalBlock"] {
-            gap: 0.4rem !important;
-        }
-        /* Tightens the container margins */
-        .block-container {
-            padding-top: 1.5rem !important;
-            padding-bottom: 1.5rem !important;
-        }
-        
-        /* Custom styling for the bold black score */
-        .score-badge {
-            font-weight: 800 !important;
-            color: #000000 !important;
-            font-size: 1.15rem;
-            text-align: center;
-            line-height: 2.5rem; /* Vertically centers text with the inputs */
-            display: block;
-        }
-        
-        /* Forces the minus and plus columns to stay on a single line on mobile phones */
-        @media (max-width: 640px) {
-            .mobile-row-fix div[data-testid="column"] {
-                flex: 1 1 auto !important;
-                width: auto !important;
-            }
-        }
-    </style>
-""", unsafe_allowed_html=True)
+    }
+</style>
+""")
 
 # 1. Initialize App State
 if "teams" not in st.session_state:
